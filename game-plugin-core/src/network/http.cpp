@@ -13,7 +13,7 @@ bool RequestHandle::ready(){return future_.wait_for(std::chrono::milliseconds(0)
 HttpResponse HttpClient::perform(const HttpRequest&r,const std::atomic_bool& cancel)const{
  static std::once_flag flag;std::call_once(flag,[]{if(curl_global_init(CURL_GLOBAL_DEFAULT)!=CURLE_OK)throw std::runtime_error("curl initialization failed");});
  if(r.url.rfind("https://",0)!=0||!safe_header(r.bearer)||r.connect_timeout_ms<1||r.timeout_ms<1||(r.method!="GET"&&r.method!="POST"))return {0,"","invalid request",false};
- unsigned tries=r.method=="GET"?std::min(r.retries,2u)+1:1;
+ unsigned tries=r.method=="GET"?(std::min)(r.retries,2u)+1:1;
  for(unsigned attempt=0;attempt<tries;attempt++){
   if(cancel.load())return {0,"","cancelled",true};CURL*c=curl_easy_init();if(!c)return {0,"","network initialization failed",false};HttpResponse out;curl_slist* headers=nullptr;headers=curl_slist_append(headers,"Accept: application/json");if(r.method=="POST")headers=curl_slist_append(headers,"Content-Type: application/json");std::string auth;if(!r.bearer.empty()){auth="Authorization: Bearer "+r.bearer;headers=curl_slist_append(headers,auth.c_str());}
   bool options_ok=true;
