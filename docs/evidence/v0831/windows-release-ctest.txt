@@ -1,0 +1,165 @@
+[OUTPUT]
+Internal ctest changing into directory: D:/a/norikek/norikek/build-win
+
+[HANDLER_VERBOSE_OUTPUT]
+UpdateCTestConfiguration  from :D:/a/norikek/norikek/build-win/DartConfiguration.tcl
+
+UpdateCTestConfiguration  from :D:/a/norikek/norikek/build-win/DartConfiguration.tcl
+[HANDLER_OUTPUT]
+Test project D:/a/norikek/norikek/build-win
+
+[HANDLER_VERBOSE_OUTPUT]
+Constructing a list of tests
+
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+[HANDLER_OUTPUT]
+    Start 1: core
+
+[HANDLER_VERBOSE_OUTPUT]
+
+1: Test command: D:\a\norikek\norikek\build-win\Release\nori_core_tests.exe
+
+1: Working Directory: D:/a/norikek/norikek/build-win
+1: Test timeout computed to be: 10000000
+1: Core tests passed
+[HANDLER_OUTPUT]
+1/8 Test #1: core .............................
+   Passed    1.17 sec
+[HANDLER_VERBOSE_OUTPUT]
+test 2
+
+[HANDLER_OUTPUT]
+    Start 2: http
+
+[HANDLER_VERBOSE_OUTPUT]
+
+2: Test command: C:\hostedtoolcache\windows\Python\3.12.10\x64\python3.exe "D:/a/norikek/norikek/game-plugin-core/tests/run_tls_integration.py" "D:/a/norikek/norikek/build-win/Release/nori_http_tests.exe"
+
+2: Working Directory: D:/a/norikek/norikek/build-win
+2: Environment variables:
+2:  NORI_TEST_OPENSSL=C:/Program Files/OpenSSL/bin/openssl.exe
+2: Test timeout computed to be: 180
+2: TLS, real backend, anonymous v2 rejection and cancellation passed
+[HANDLER_OUTPUT]
+2/8 Test #2: http .............................
+   Passed    4.14 sec
+[HANDLER_VERBOSE_OUTPUT]
+test 3
+
+[HANDLER_OUTPUT]
+    Start 3: v2_flow
+
+[HANDLER_VERBOSE_OUTPUT]
+
+3: Test command: C:\hostedtoolcache\windows\Python\3.12.10\x64\python3.exe "D:/a/norikek/norikek/game-plugin-core/tests/run_v2_flow.py" "D:/a/norikek/norikek/build-win/Release/nori_v2_flow_tests.exe"
+
+3: Working Directory: D:/a/norikek/norikek/build-win
+3: Environment variables:
+3:  NORI_TEST_OPENSSL=C:/Program Files/OpenSSL/bin/openssl.exe
+3: Test timeout computed to be: 180
+3: INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+3: INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+3: INFO  [alembic.runtime.migration] Running upgrade  -> abf453d198fe, initial Nori schema
+3: INFO  [alembic.runtime.migration] Running upgrade abf453d198fe -> 15a1defc2ff6, subscription plans
+3: INFO  [alembic.runtime.migration] Running upgrade 15a1defc2ff6 -> d296277344ed, sanitized worker errors
+3: INFO  [alembic.runtime.migration] Running upgrade d296277344ed -> f60e00000001, User sessions, role records and immutable license entitlement snapshots.
+3: INFO  [alembic.runtime.migration] Running upgrade f60e00000001 -> 4dbfc4c29581, backend v2 pairing rate limits events commands
+3: C++ v2 / TLS / actual backend: pre-confirm, claim, access, outage, reconnect, expiration, renewal, revocation passed; test-only memory vault and test-driven confirmation
+[HANDLER_OUTPUT]
+3/8 Test #3: v2_flow ..........................
+   Passed    6.17 sec
+[HANDLER_VERBOSE_OUTPUT]
+test 4
+
+[HANDLER_OUTPUT]
+    Start 4: controller_flow
+
+[HANDLER_VERBOSE_OUTPUT]
+
+4: Test command: C:\hostedtoolcache\windows\Python\3.12.10\x64\python3.exe "D:/a/norikek/norikek/game-plugin-core/tests/run_controller_flow.py" "D:/a/norikek/norikek/build-win/Release/nori_controller_flow_tests.exe"
+
+4: Working Directory: D:/a/norikek/norikek/build-win
+4: Environment variables:
+4:  NORI_TEST_OPENSSL=C:/Program Files/OpenSSL/bin/openssl.exe
+4: Test timeout computed to be: 180
+4: INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+4: INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+4: INFO  [alembic.runtime.migration] Running upgrade  -> abf453d198fe, initial Nori schema
+4: INFO  [alembic.runtime.migration] Running upgrade abf453d198fe -> 15a1defc2ff6, subscription plans
+4: INFO  [alembic.runtime.migration] Running upgrade 15a1defc2ff6 -> d296277344ed, sanitized worker errors
+4: INFO  [alembic.runtime.migration] Running upgrade d296277344ed -> f60e00000001, User sessions, role records and immutable license entitlement snapshots.
+4: INFO  [alembic.runtime.migration] Running upgrade f60e00000001 -> 4dbfc4c29581, backend v2 pairing rate limits events commands
+4: Controller + HTTPS + actual Backend: expired pairing, re-pair after revoke, pre-confirm, restart, offline, long outage (>3 automatic retry cycles), reconnect, cancellation during retry wait, expiry, renewal, in-flight cancellation, shutdown, revocation, corrupt vault passed. Test-only memory vault and direct test confirmation; not Windows or real Telegram.
+[HANDLER_OUTPUT]
+4/8 Test #4: controller_flow ..................
+   Passed   37.58 sec
+[HANDLER_VERBOSE_OUTPUT]
+test 5
+
+[HANDLER_OUTPUT]
+    Start 5: vault_write
+
+[HANDLER_VERBOSE_OUTPUT]
+
+5: Test command: D:\a\norikek\norikek\build-win\Release\nori_windows_vault_test.exe "write" "D:/a/norikek/norikek/build-win/vault-Release.bin"
+
+5: Working Directory: D:/a/norikek/norikek/build-win
+5: Test timeout computed to be: 10000000
+[HANDLER_OUTPUT]
+5/8 Test #5: vault_write ......................
+   Passed    0.02 sec
+[HANDLER_VERBOSE_OUTPUT]
+test 6
+
+[HANDLER_OUTPUT]
+    Start 6: vault_read
+
+[HANDLER_VERBOSE_OUTPUT]
+
+6: Test command: D:\a\norikek\norikek\build-win\Release\nori_windows_vault_test.exe "read" "D:/a/norikek/norikek/build-win/vault-Release.bin"
+
+6: Working Directory: D:/a/norikek/norikek/build-win
+6: Test timeout computed to be: 10000000
+[HANDLER_OUTPUT]
+6/8 Test #6: vault_read .......................
+   Passed    0.01 sec
+[HANDLER_VERBOSE_OUTPUT]
+test 7
+
+[HANDLER_OUTPUT]
+    Start 7: vault_corrupt
+
+[HANDLER_VERBOSE_OUTPUT]
+
+7: Test command: D:\a\norikek\norikek\build-win\Release\nori_windows_vault_test.exe "corrupt" "D:/a/norikek/norikek/build-win/vault-Release.bin"
+
+7: Working Directory: D:/a/norikek/norikek/build-win
+7: Test timeout computed to be: 10000000
+[HANDLER_OUTPUT]
+7/8 Test #7: vault_corrupt ....................
+   Passed    0.01 sec
+[HANDLER_VERBOSE_OUTPUT]
+test 8
+
+[HANDLER_OUTPUT]
+    Start 8: backoff
+
+[HANDLER_VERBOSE_OUTPUT]
+
+8: Test command: D:\a\norikek\norikek\build-win\Release\nori_backoff_tests.exe
+
+8: Working Directory: D:/a/norikek/norikek/build-win
+8: Test timeout computed to be: 10000000
+8: PASS null vault rejection; exponential equal jitter 0.5-1x, cap 60s, saturation, reset
+[HANDLER_OUTPUT]
+8/8 Test #8: backoff ..........................
+   Passed    0.01 sec
+
+100% tests passed, 0 tests failed out of 8
+
+Total Test time (real) =  49.12 sec

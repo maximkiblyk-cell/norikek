@@ -1,0 +1,46 @@
+MSBuild version 17.14.60+43b635718 for .NET Framework
+
+  1>Checking Build System
+  Building Custom Rule D:/a/norikek/norikek/game-plugin-core/CMakeLists.txt
+  core.cpp
+  navigation.cpp
+  input.cpp
+  settings.cpp
+  model.cpp
+  http.cpp
+  auth.cpp
+  session.cpp
+  controller.cpp
+  license.cpp
+  logger.cpp
+  notifications.cpp
+  adapters.cpp
+  vault.cpp
+  Generating Code...
+  nori_core.vcxproj -> D:\a\norikek\norikek\build-win\Debug\nori_core.lib
+  Building Custom Rule D:/a/norikek/norikek/game-plugin-core/CMakeLists.txt
+  Building Custom Rule D:/a/norikek/norikek/game-plugin-core/CMakeLists.txt
+  Building Custom Rule D:/a/norikek/norikek/game-plugin-core/CMakeLists.txt
+  Building Custom Rule D:/a/norikek/norikek/game-plugin-core/CMakeLists.txt
+  windows_vault_process.cpp
+  v2_flow_tests.cpp
+  controller_flow_tests.cpp
+  core_tests.cpp
+  Building Custom Rule D:/a/norikek/norikek/game-plugin-core/CMakeLists.txt
+  http_tests.cpp
+  nori_controller_flow_tests.vcxproj -> D:\a\norikek\norikek\build-win\Debug\nori_controller_flow_tests.exe
+  nori_v2_flow_tests.vcxproj -> D:\a\norikek\norikek\build-win\Debug\nori_v2_flow_tests.exe
+  nori_core_tests.vcxproj -> D:\a\norikek\norikek\build-win\Debug\nori_core_tests.exe
+  C:\vcpkg\installed\x64-windows\debug\bin\libcurl-d.dll -> D:\a\norikek\norikek\build-win\Debug\libcurl-d.dll done
+  C:\vcpkg\installed\x64-windows\debug\bin\libssl-3-x64.dll -> D:\a\norikek\norikek\build-win\Debug\libssl-3-x64.dll done
+  C:\vcpkg\installed\x64-windows\debug\bin\libcrypto-3-x64.dll -> D:\a\norikek\norikek\build-win\Debug\libcrypto-3-x64.dll done
+  C:\vcpkg\installed\x64-windows\debug\bin\libzd.dll -> D:\a\norikek\norikek\build-win\Debug\libzd.dll done
+  nori_windows_vault_test.vcxproj -> D:\a\norikek\norikek\build-win\Debug\nori_windows_vault_test.exe
+  Building Custom Rule D:/a/norikek/norikek/game-plugin-core/CMakeLists.txt
+  windows_main.cpp
+  Building Custom Rule D:/a/norikek/norikek/game-plugin-core/CMakeLists.txt
+  backoff_tests.cpp
+  nori_http_tests.vcxproj -> D:\a\norikek\norikek\build-win\Debug\nori_http_tests.exe
+  nori_dev_host.vcxproj -> D:\a\norikek\norikek\build-win\Debug\nori_dev_host.exe
+  nori_backoff_tests.vcxproj -> D:\a\norikek\norikek\build-win\Debug\nori_backoff_tests.exe
+  Building Custom Rule D:/a/norikek/norikek/game-plugin-core/CMakeLists.txt

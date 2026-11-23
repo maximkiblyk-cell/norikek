@@ -1,0 +1,10 @@
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /data/nori-v0831-debug
+[ 53%] Built target nori_core
+[ 60%] Built target nori_core_tests
+[ 67%] Built target nori_http_tests
+[ 75%] Built target nori_v2_flow_tests
+[ 85%] Built target nori_dev_host
+[ 92%] Built target nori_controller_flow_tests
+[100%] Built target nori_backoff_tests

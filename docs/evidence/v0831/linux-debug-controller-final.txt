@@ -1,0 +1,45 @@
+[OUTPUT]
+Internal ctest changing into directory: /data/nori-v0831-debug
+
+[HANDLER_VERBOSE_OUTPUT]
+UpdateCTestConfiguration  from :/data/nori-v0831-debug/DartConfiguration.tcl
+
+UpdateCTestConfiguration  from :/data/nori-v0831-debug/DartConfiguration.tcl
+[HANDLER_OUTPUT]
+Test project /vercel/sandbox/data/nori-v0831-debug
+
+[HANDLER_VERBOSE_OUTPUT]
+Constructing a list of tests
+
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 4
+[HANDLER_OUTPUT]
+    Start 4: controller_flow
+
+[HANDLER_VERBOSE_OUTPUT]
+
+4: Test command: /data/nori-build-venv/bin/python "/vercel/sandbox/data/nori-v0831/game-plugin-core/tests/run_controller_flow.py" "/data/nori-v0831-debug/nori_controller_flow_tests"
+
+4: Working Directory: /vercel/sandbox/data/nori-v0831-debug
+4: Environment variables:
+4:  NORI_TEST_OPENSSL=/usr/bin/openssl
+4: Test timeout computed to be: 180
+4: Controller + HTTPS + actual Backend: expired pairing, re-pair after revoke, pre-confirm, restart, offline, long outage (>3 automatic retry cycles), reconnect, cancellation during retry wait, expiry, renewal, in-flight cancellation, shutdown, revocation, corrupt vault passed. Test-only memory vault and direct test confirmation; not Windows or real Telegram.
+[HANDLER_OUTPUT]
+1/1 Test #4: controller_flow ..................
+   Passed   26.20 sec
+[HANDLER_VERBOSE_OUTPUT]
+
+The following tests passed:
+
+	controller_flow
+[HANDLER_OUTPUT]
+
+100% tests passed, 0 tests failed out of 1
+
+
+Total Test time (real) =  26.20 sec

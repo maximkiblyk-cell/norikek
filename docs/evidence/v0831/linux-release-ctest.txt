@@ -1,0 +1,120 @@
+[OUTPUT]
+Internal ctest changing into directory: /data/nori-v0831-release
+
+[HANDLER_VERBOSE_OUTPUT]
+UpdateCTestConfiguration  from :/data/nori-v0831-release/DartConfiguration.tcl
+
+UpdateCTestConfiguration  from :/data/nori-v0831-release/DartConfiguration.tcl
+[HANDLER_OUTPUT]
+Test project /vercel/sandbox/data/nori-v0831-release
+
+[HANDLER_VERBOSE_OUTPUT]
+Constructing a list of tests
+
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 1
+[HANDLER_OUTPUT]
+    Start 1: core
+
+[HANDLER_VERBOSE_OUTPUT]
+
+1: Test command: /data/nori-v0831-release/nori_core_tests
+
+1: Working Directory: /vercel/sandbox/data/nori-v0831-release
+1: Test timeout computed to be: 10000000
+1: Core tests passed
+[HANDLER_OUTPUT]
+1/5 Test #1: core .............................
+   Passed    1.11 sec
+[HANDLER_VERBOSE_OUTPUT]
+test 2
+
+[HANDLER_OUTPUT]
+    Start 2: http
+
+[HANDLER_VERBOSE_OUTPUT]
+
+2: Test command: /data/nori-build-venv/bin/python "/vercel/sandbox/data/nori-v0831/game-plugin-core/tests/run_tls_integration.py" "/data/nori-v0831-release/nori_http_tests"
+
+2: Working Directory: /vercel/sandbox/data/nori-v0831-release
+2: Environment variables:
+2:  NORI_TEST_OPENSSL=/usr/bin/openssl
+2: Test timeout computed to be: 180
+2: TLS, real backend, anonymous v2 rejection and cancellation passed
+[HANDLER_OUTPUT]
+2/5 Test #2: http .............................
+   Passed    1.43 sec
+[HANDLER_VERBOSE_OUTPUT]
+test 3
+
+[HANDLER_OUTPUT]
+    Start 3: v2_flow
+
+[HANDLER_VERBOSE_OUTPUT]
+
+3: Test command: /data/nori-build-venv/bin/python "/vercel/sandbox/data/nori-v0831/game-plugin-core/tests/run_v2_flow.py" "/data/nori-v0831-release/nori_v2_flow_tests"
+
+3: Working Directory: /vercel/sandbox/data/nori-v0831-release
+3: Environment variables:
+3:  NORI_TEST_OPENSSL=/usr/bin/openssl
+3: Test timeout computed to be: 180
+3: INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+3: INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+3: INFO  [alembic.runtime.migration] Running upgrade  -> abf453d198fe, initial Nori schema
+3: INFO  [alembic.runtime.migration] Running upgrade abf453d198fe -> 15a1defc2ff6, subscription plans
+3: INFO  [alembic.runtime.migration] Running upgrade 15a1defc2ff6 -> d296277344ed, sanitized worker errors
+3: INFO  [alembic.runtime.migration] Running upgrade d296277344ed -> f60e00000001, User sessions, role records and immutable license entitlement snapshots.
+3: INFO  [alembic.runtime.migration] Running upgrade f60e00000001 -> 4dbfc4c29581, backend v2 pairing rate limits events commands
+3: C++ v2 / TLS / actual backend: pre-confirm, claim, access, outage, reconnect, expiration, renewal, revocation passed; test-only memory vault and test-driven confirmation
+[HANDLER_OUTPUT]
+3/5 Test #3: v2_flow ..........................
+   Passed    3.10 sec
+[HANDLER_VERBOSE_OUTPUT]
+test 4
+
+[HANDLER_OUTPUT]
+    Start 4: controller_flow
+
+[HANDLER_VERBOSE_OUTPUT]
+
+4: Test command: /data/nori-build-venv/bin/python "/vercel/sandbox/data/nori-v0831/game-plugin-core/tests/run_controller_flow.py" "/data/nori-v0831-release/nori_controller_flow_tests"
+
+4: Working Directory: /vercel/sandbox/data/nori-v0831-release
+4: Environment variables:
+4:  NORI_TEST_OPENSSL=/usr/bin/openssl
+4: Test timeout computed to be: 180
+4: INFO  [alembic.runtime.migration] Context impl SQLiteImpl.
+4: INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+4: INFO  [alembic.runtime.migration] Running upgrade  -> abf453d198fe, initial Nori schema
+4: INFO  [alembic.runtime.migration] Running upgrade abf453d198fe -> 15a1defc2ff6, subscription plans
+4: INFO  [alembic.runtime.migration] Running upgrade 15a1defc2ff6 -> d296277344ed, sanitized worker errors
+4: INFO  [alembic.runtime.migration] Running upgrade d296277344ed -> f60e00000001, User sessions, role records and immutable license entitlement snapshots.
+4: INFO  [alembic.runtime.migration] Running upgrade f60e00000001 -> 4dbfc4c29581, backend v2 pairing rate limits events commands
+4: Controller + HTTPS + actual Backend: expired pairing, re-pair after revoke, pre-confirm, restart, offline, long outage (>3 automatic retry cycles), reconnect, cancellation during retry wait, expiry, renewal, in-flight cancellation, shutdown, revocation, corrupt vault passed. Test-only memory vault and direct test confirmation; not Windows or real Telegram.
+[HANDLER_OUTPUT]
+4/5 Test #4: controller_flow ..................
+   Passed   27.07 sec
+[HANDLER_VERBOSE_OUTPUT]
+test 5
+
+[HANDLER_OUTPUT]
+    Start 5: backoff
+
+[HANDLER_VERBOSE_OUTPUT]
+
+5: Test command: /data/nori-v0831-release/nori_backoff_tests
+
+5: Working Directory: /vercel/sandbox/data/nori-v0831-release
+5: Test timeout computed to be: 10000000
+5: PASS null vault rejection; exponential equal jitter 0.5-1x, cap 60s, saturation, reset
+[HANDLER_OUTPUT]
+5/5 Test #5: backoff ..........................
+   Passed    0.00 sec
+
+100% tests passed, 0 tests failed out of 5
+
+Total Test time (real) =  32.72 sec

@@ -1,0 +1,3 @@
+GitHub Actions run: https://github.com/maximkiblyk-cell/norikek/actions/runs/45126054885
+Tested commit: 770010a85c97ffb7c96c2deba4824f95bf624972
+core	DPAPI isolation with a separate temporary Windows profile	2026-11-23T06:49:11.8091597Z PASS: second Windows profile can use its own DPAPI and cannot decrypt readable owner ciphertext
