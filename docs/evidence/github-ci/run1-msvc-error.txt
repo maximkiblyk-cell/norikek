@@ -1,0 +1,2 @@
+core	Build Debug and Release	2026-11-23T06:00:02.7022761Z D:\a\norikek\norikek\game-plugin-core\src\network\http.cpp(16,38): error C2589: '(': illegal token on right side of '::' [D:\a\norikek\norikek\build-win\nori_core.vcxproj]
+core	Build Debug and Release	2026-11-23T06:00:02.7041727Z D:\a\norikek\norikek\game-plugin-core\src\network\http.cpp(16,38): error C2059: syntax error: ')' [D:\a\norikek\norikek\build-win\nori_core.vcxproj]

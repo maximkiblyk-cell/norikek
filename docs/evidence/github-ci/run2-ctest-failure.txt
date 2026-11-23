@@ -1,0 +1,8 @@
+core	CTest Debug and Release (includes DPAPI and plaintext checks)	2026-11-23T06:11:11.2091835Z 1/5 Test #1: core .............................***Failed    1.45 sec
+core	CTest Debug and Release (includes DPAPI and plaintext checks)	2026-11-23T06:11:11.2092882Z remove_all: The process cannot access the file because it is being used by another process.: "C:\Users\RUNNER~1\AppData\Local\Temp\ff9df303-eda6-4fcf-92b6-494094f7cbbd"
+core	CTest Debug and Release (includes DPAPI and plaintext checks)	2026-11-23T06:11:11.2319398Z 2/5 Test #2: vault_write ......................   Passed    0.02 sec
+core	CTest Debug and Release (includes DPAPI and plaintext checks)	2026-11-23T06:11:11.2398511Z 3/5 Test #3: vault_read .......................   Passed    0.01 sec
+core	CTest Debug and Release (includes DPAPI and plaintext checks)	2026-11-23T06:11:11.2470554Z 4/5 Test #4: vault_corrupt ....................   Passed    0.01 sec
+core	CTest Debug and Release (includes DPAPI and plaintext checks)	2026-11-23T06:11:11.2576052Z 5/5 Test #5: backoff ..........................   Passed    0.01 sec
+core	CTest Debug and Release (includes DPAPI and plaintext checks)	2026-11-23T06:11:11.2582057Z 80% tests passed, 1 tests failed out of 5
+core	CTest Debug and Release (includes DPAPI and plaintext checks)	2026-11-23T06:11:11.2582728Z The following tests FAILED:

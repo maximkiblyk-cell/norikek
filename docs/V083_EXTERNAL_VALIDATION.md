@@ -1,3 +1,5 @@
+> **Windows CI, 2026-11-23:** GitHub Actions на commit `2af2c6c5cd9b0d97a04472133fe54bbdfce8cced` прошёл Debug/Release CTest по 5/5 и изоляцию DPAPI между двумя профилями. Отчёт: `docs/GITHUB_WINDOWS_CI_VALIDATION.md` (из папки `docs` — `GITHUB_WINDOWS_CI_VALIDATION.md`). Предыдущие утверждения о непроверенном Windows ниже исторические. Telegram, Docker и game integration остаются непроверенными.
+
 # NØRI v0.8.3 — внешняя валидация
 
 Статус: **не завершена, версия кода не изменялась**. Основа — `NORI-v0.8.3-source.zip`, SHA-256 `8ec7011798505d70770bb3aee7f4dc8941c1d11c76755d208dbbb9aeff2bcb87`. Создан только этот отчёт и инструкция `V083_EXTERNAL_TEST_GUIDE.md`; архитектура, код и тесты не изменялись. Нового выпуска нет.
