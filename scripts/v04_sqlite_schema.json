@@ -1,0 +1,860 @@
+{
+  "admin_audit": {
+    "columns": [
+      [
+        "id",
+        "INTEGER",
+        1,
+        null,
+        1
+      ],
+      [
+        "actor_telegram_id",
+        "BIGINT",
+        1,
+        null,
+        0
+      ],
+      [
+        "action",
+        "VARCHAR(32)",
+        1,
+        null,
+        0
+      ],
+      [
+        "target_user_id",
+        "INTEGER",
+        0,
+        null,
+        0
+      ],
+      [
+        "grant_id",
+        "INTEGER",
+        0,
+        null,
+        0
+      ],
+      [
+        "created_at",
+        "DATETIME",
+        1,
+        null,
+        0
+      ]
+    ],
+    "foreign_keys": [],
+    "indexes": [],
+    "named_index_sql": [],
+    "table_sql": "CREATE TABLE admin_audit ( id INTEGER NOT NULL, actor_telegram_id BIGINT NOT NULL, action VARCHAR(32) NOT NULL, target_user_id INTEGER, grant_id INTEGER, created_at DATETIME NOT NULL, PRIMARY KEY (id) )"
+  },
+  "license_grants": {
+    "columns": [
+      [
+        "id",
+        "INTEGER",
+        1,
+        null,
+        1
+      ],
+      [
+        "user_id",
+        "INTEGER",
+        1,
+        null,
+        0
+      ],
+      [
+        "key_hash",
+        "VARCHAR(64)",
+        1,
+        null,
+        0
+      ],
+      [
+        "issue_request_id",
+        "VARCHAR(36)",
+        1,
+        null,
+        0
+      ],
+      [
+        "duration_days",
+        "INTEGER",
+        1,
+        null,
+        0
+      ],
+      [
+        "created_at",
+        "DATETIME",
+        1,
+        null,
+        0
+      ],
+      [
+        "activated_at",
+        "DATETIME",
+        0,
+        null,
+        0
+      ],
+      [
+        "expires_at",
+        "DATETIME",
+        0,
+        null,
+        0
+      ],
+      [
+        "revoked_at",
+        "DATETIME",
+        0,
+        null,
+        0
+      ]
+    ],
+    "foreign_keys": [
+      [
+        "users",
+        "user_id",
+        "id",
+        "NO ACTION",
+        "NO ACTION",
+        "NONE"
+      ]
+    ],
+    "indexes": [
+      [
+        0,
+        "c",
+        0,
+        [
+          "user_id"
+        ]
+      ],
+      [
+        1,
+        "c",
+        0,
+        [
+          "issue_request_id"
+        ]
+      ],
+      [
+        1,
+        "c",
+        0,
+        [
+          "key_hash"
+        ]
+      ]
+    ],
+    "named_index_sql": [
+      "CREATE INDEX ix_license_grants_user_id ON license_grants (user_id)",
+      "CREATE UNIQUE INDEX ix_license_grants_issue_request_id ON license_grants (issue_request_id)",
+      "CREATE UNIQUE INDEX ix_license_grants_key_hash ON license_grants (key_hash)"
+    ],
+    "table_sql": "CREATE TABLE license_grants ( id INTEGER NOT NULL, user_id INTEGER NOT NULL, key_hash VARCHAR(64) NOT NULL, issue_request_id VARCHAR(36) NOT NULL, duration_days INTEGER NOT NULL, created_at DATETIME NOT NULL, activated_at DATETIME, expires_at DATETIME, revoked_at DATETIME, PRIMARY KEY (id), FOREIGN KEY(user_id) REFERENCES users (id) )"
+  },
+  "license_operations": {
+    "columns": [
+      [
+        "request_id",
+        "VARCHAR(36)",
+        1,
+        null,
+        1
+      ],
+      [
+        "grant_id",
+        "INTEGER",
+        1,
+        null,
+        0
+      ],
+      [
+        "actor_telegram_id",
+        "BIGINT",
+        1,
+        null,
+        0
+      ],
+      [
+        "days",
+        "INTEGER",
+        1,
+        null,
+        0
+      ],
+      [
+        "result_expires_at",
+        "DATETIME",
+        1,
+        null,
+        0
+      ],
+      [
+        "created_at",
+        "DATETIME",
+        1,
+        null,
+        0
+      ]
+    ],
+    "foreign_keys": [
+      [
+        "license_grants",
+        "grant_id",
+        "id",
+        "NO ACTION",
+        "NO ACTION",
+        "NONE"
+      ]
+    ],
+    "indexes": [
+      [
+        1,
+        "pk",
+        0,
+        [
+          "request_id"
+        ]
+      ]
+    ],
+    "named_index_sql": [],
+    "table_sql": "CREATE TABLE license_operations ( request_id VARCHAR(36) NOT NULL, grant_id INTEGER NOT NULL, actor_telegram_id BIGINT NOT NULL, days INTEGER NOT NULL, result_expires_at DATETIME NOT NULL, created_at DATETIME NOT NULL, PRIMARY KEY (request_id), FOREIGN KEY(grant_id) REFERENCES license_grants (id) )"
+  },
+  "licenses": {
+    "columns": [
+      [
+        "id",
+        "INTEGER",
+        1,
+        null,
+        1
+      ],
+      [
+        "user_id",
+        "INTEGER",
+        1,
+        null,
+        0
+      ],
+      [
+        "key_hash",
+        "VARCHAR(128)",
+        1,
+        null,
+        0
+      ],
+      [
+        "active",
+        "BOOLEAN",
+        1,
+        null,
+        0
+      ],
+      [
+        "expires_at",
+        "DATETIME",
+        0,
+        null,
+        0
+      ]
+    ],
+    "foreign_keys": [
+      [
+        "users",
+        "user_id",
+        "id",
+        "NO ACTION",
+        "NO ACTION",
+        "NONE"
+      ]
+    ],
+    "indexes": [
+      [
+        0,
+        "c",
+        0,
+        [
+          "user_id"
+        ]
+      ],
+      [
+        1,
+        "u",
+        0,
+        [
+          "key_hash"
+        ]
+      ]
+    ],
+    "named_index_sql": [
+      "CREATE INDEX ix_licenses_user_id ON licenses (user_id)"
+    ],
+    "table_sql": "CREATE TABLE licenses ( id INTEGER NOT NULL, user_id INTEGER NOT NULL, key_hash VARCHAR(128) NOT NULL, active BOOLEAN NOT NULL, expires_at DATETIME, PRIMARY KEY (id), FOREIGN KEY(user_id) REFERENCES users (id), UNIQUE (key_hash) )"
+  },
+  "notification_jobs": {
+    "columns": [
+      [
+        "id",
+        "INTEGER",
+        1,
+        null,
+        1
+      ],
+      [
+        "user_id",
+        "INTEGER",
+        1,
+        null,
+        0
+      ],
+      [
+        "support_message_id",
+        "INTEGER",
+        1,
+        null,
+        0
+      ],
+      [
+        "ticket_id",
+        "INTEGER",
+        1,
+        null,
+        0
+      ],
+      [
+        "status",
+        "VARCHAR(16)",
+        1,
+        null,
+        0
+      ],
+      [
+        "attempts",
+        "INTEGER",
+        1,
+        null,
+        0
+      ],
+      [
+        "next_attempt_at",
+        "DATETIME",
+        1,
+        null,
+        0
+      ],
+      [
+        "lease_until",
+        "DATETIME",
+        0,
+        null,
+        0
+      ],
+      [
+        "lease_token",
+        "VARCHAR(64)",
+        0,
+        null,
+        0
+      ],
+      [
+        "telegram_message_id",
+        "BIGINT",
+        0,
+        null,
+        0
+      ],
+      [
+        "error_code",
+        "VARCHAR(64)",
+        0,
+        null,
+        0
+      ],
+      [
+        "created_at",
+        "DATETIME",
+        1,
+        null,
+        0
+      ],
+      [
+        "sent_at",
+        "DATETIME",
+        0,
+        null,
+        0
+      ]
+    ],
+    "foreign_keys": [
+      [
+        "support_messages",
+        "support_message_id",
+        "id",
+        "NO ACTION",
+        "NO ACTION",
+        "NONE"
+      ],
+      [
+        "support_tickets",
+        "ticket_id",
+        "id",
+        "NO ACTION",
+        "NO ACTION",
+        "NONE"
+      ],
+      [
+        "users",
+        "user_id",
+        "id",
+        "NO ACTION",
+        "NO ACTION",
+        "NONE"
+      ]
+    ],
+    "indexes": [
+      [
+        0,
+        "c",
+        0,
+        [
+          "next_attempt_at"
+        ]
+      ],
+      [
+        0,
+        "c",
+        0,
+        [
+          "status"
+        ]
+      ],
+      [
+        0,
+        "c",
+        0,
+        [
+          "user_id"
+        ]
+      ],
+      [
+        1,
+        "u",
+        0,
+        [
+          "support_message_id"
+        ]
+      ]
+    ],
+    "named_index_sql": [
+      "CREATE INDEX ix_notification_jobs_next_attempt_at ON notification_jobs (next_attempt_at)",
+      "CREATE INDEX ix_notification_jobs_status ON notification_jobs (status)",
+      "CREATE INDEX ix_notification_jobs_user_id ON notification_jobs (user_id)"
+    ],
+    "table_sql": "CREATE TABLE notification_jobs ( id INTEGER NOT NULL, user_id INTEGER NOT NULL, support_message_id INTEGER NOT NULL, ticket_id INTEGER NOT NULL, status VARCHAR(16) NOT NULL, attempts INTEGER NOT NULL, next_attempt_at DATETIME NOT NULL, lease_until DATETIME, lease_token VARCHAR(64), telegram_message_id BIGINT, error_code VARCHAR(64), created_at DATETIME NOT NULL, sent_at DATETIME, PRIMARY KEY (id), FOREIGN KEY(user_id) REFERENCES users (id), UNIQUE (support_message_id), FOREIGN KEY(support_message_id) REFERENCES support_messages (id), FOREIGN KEY(ticket_id) REFERENCES support_tickets (id) )"
+  },
+  "notification_settings": {
+    "columns": [
+      [
+        "id",
+        "INTEGER",
+        1,
+        null,
+        1
+      ],
+      [
+        "user_id",
+        "INTEGER",
+        1,
+        null,
+        0
+      ],
+      [
+        "platform",
+        "VARCHAR(16)",
+        1,
+        null,
+        0
+      ],
+      [
+        "kind",
+        "VARCHAR(16)",
+        1,
+        null,
+        0
+      ],
+      [
+        "enabled",
+        "BOOLEAN",
+        1,
+        null,
+        0
+      ]
+    ],
+    "foreign_keys": [
+      [
+        "users",
+        "user_id",
+        "id",
+        "NO ACTION",
+        "NO ACTION",
+        "NONE"
+      ]
+    ],
+    "indexes": [
+      [
+        0,
+        "c",
+        0,
+        [
+          "user_id"
+        ]
+      ],
+      [
+        1,
+        "u",
+        0,
+        [
+          "user_id",
+          "platform",
+          "kind"
+        ]
+      ]
+    ],
+    "named_index_sql": [
+      "CREATE INDEX ix_notification_settings_user_id ON notification_settings (user_id)"
+    ],
+    "table_sql": "CREATE TABLE notification_settings ( id INTEGER NOT NULL, user_id INTEGER NOT NULL, platform VARCHAR(16) NOT NULL, kind VARCHAR(16) NOT NULL, enabled BOOLEAN NOT NULL, PRIMARY KEY (id), UNIQUE (user_id, platform, kind), FOREIGN KEY(user_id) REFERENCES users (id) )"
+  },
+  "pairing_codes": {
+    "columns": [
+      [
+        "id",
+        "INTEGER",
+        1,
+        null,
+        1
+      ],
+      [
+        "code",
+        "VARCHAR(16)",
+        1,
+        null,
+        0
+      ],
+      [
+        "platform",
+        "VARCHAR(32)",
+        1,
+        null,
+        0
+      ],
+      [
+        "expires_at",
+        "DATETIME",
+        1,
+        null,
+        0
+      ],
+      [
+        "consumed",
+        "BOOLEAN",
+        1,
+        null,
+        0
+      ]
+    ],
+    "foreign_keys": [],
+    "indexes": [
+      [
+        1,
+        "c",
+        0,
+        [
+          "code"
+        ]
+      ]
+    ],
+    "named_index_sql": [
+      "CREATE UNIQUE INDEX ix_pairing_codes_code ON pairing_codes (code)"
+    ],
+    "table_sql": "CREATE TABLE pairing_codes ( id INTEGER NOT NULL, code VARCHAR(16) NOT NULL, platform VARCHAR(32) NOT NULL, expires_at DATETIME NOT NULL, consumed BOOLEAN NOT NULL, PRIMARY KEY (id) )"
+  },
+  "support_messages": {
+    "columns": [
+      [
+        "id",
+        "INTEGER",
+        1,
+        null,
+        1
+      ],
+      [
+        "ticket_id",
+        "INTEGER",
+        1,
+        null,
+        0
+      ],
+      [
+        "request_id",
+        "VARCHAR(36)",
+        1,
+        null,
+        0
+      ],
+      [
+        "author_type",
+        "VARCHAR(8)",
+        1,
+        null,
+        0
+      ],
+      [
+        "author_telegram_id",
+        "BIGINT",
+        1,
+        null,
+        0
+      ],
+      [
+        "text",
+        "TEXT",
+        1,
+        null,
+        0
+      ],
+      [
+        "created_at",
+        "DATETIME",
+        1,
+        null,
+        0
+      ]
+    ],
+    "foreign_keys": [
+      [
+        "support_tickets",
+        "ticket_id",
+        "id",
+        "NO ACTION",
+        "NO ACTION",
+        "NONE"
+      ]
+    ],
+    "indexes": [
+      [
+        0,
+        "c",
+        0,
+        [
+          "ticket_id"
+        ]
+      ],
+      [
+        1,
+        "c",
+        0,
+        [
+          "request_id"
+        ]
+      ]
+    ],
+    "named_index_sql": [
+      "CREATE INDEX ix_support_messages_ticket_id ON support_messages (ticket_id)",
+      "CREATE UNIQUE INDEX ix_support_messages_request_id ON support_messages (request_id)"
+    ],
+    "table_sql": "CREATE TABLE support_messages ( id INTEGER NOT NULL, ticket_id INTEGER NOT NULL, request_id VARCHAR(36) NOT NULL, author_type VARCHAR(8) NOT NULL, author_telegram_id BIGINT NOT NULL, text TEXT NOT NULL, created_at DATETIME NOT NULL, PRIMARY KEY (id), FOREIGN KEY(ticket_id) REFERENCES support_tickets (id) )"
+  },
+  "support_ticket_requests": {
+    "columns": [
+      [
+        "request_id",
+        "VARCHAR(36)",
+        1,
+        null,
+        1
+      ],
+      [
+        "ticket_id",
+        "INTEGER",
+        1,
+        null,
+        0
+      ],
+      [
+        "user_id",
+        "INTEGER",
+        1,
+        null,
+        0
+      ],
+      [
+        "category",
+        "VARCHAR(32)",
+        1,
+        null,
+        0
+      ],
+      [
+        "message_hash",
+        "VARCHAR(64)",
+        1,
+        null,
+        0
+      ]
+    ],
+    "foreign_keys": [
+      [
+        "support_tickets",
+        "ticket_id",
+        "id",
+        "NO ACTION",
+        "NO ACTION",
+        "NONE"
+      ],
+      [
+        "users",
+        "user_id",
+        "id",
+        "NO ACTION",
+        "NO ACTION",
+        "NONE"
+      ]
+    ],
+    "indexes": [
+      [
+        1,
+        "pk",
+        0,
+        [
+          "request_id"
+        ]
+      ]
+    ],
+    "named_index_sql": [],
+    "table_sql": "CREATE TABLE support_ticket_requests ( request_id VARCHAR(36) NOT NULL, ticket_id INTEGER NOT NULL, user_id INTEGER NOT NULL, category VARCHAR(32) NOT NULL, message_hash VARCHAR(64) NOT NULL, PRIMARY KEY (request_id), FOREIGN KEY(ticket_id) REFERENCES support_tickets (id), FOREIGN KEY(user_id) REFERENCES users (id) )"
+  },
+  "support_tickets": {
+    "columns": [
+      [
+        "id",
+        "INTEGER",
+        1,
+        null,
+        1
+      ],
+      [
+        "user_id",
+        "INTEGER",
+        1,
+        null,
+        0
+      ],
+      [
+        "category",
+        "VARCHAR(32)",
+        1,
+        null,
+        0
+      ],
+      [
+        "message",
+        "TEXT",
+        1,
+        null,
+        0
+      ],
+      [
+        "status",
+        "VARCHAR(16)",
+        1,
+        null,
+        0
+      ],
+      [
+        "created_at",
+        "DATETIME",
+        1,
+        null,
+        0
+      ]
+    ],
+    "foreign_keys": [
+      [
+        "users",
+        "user_id",
+        "id",
+        "NO ACTION",
+        "NO ACTION",
+        "NONE"
+      ]
+    ],
+    "indexes": [
+      [
+        0,
+        "c",
+        0,
+        [
+          "user_id"
+        ]
+      ]
+    ],
+    "named_index_sql": [
+      "CREATE INDEX ix_support_tickets_user_id ON support_tickets (user_id)"
+    ],
+    "table_sql": "CREATE TABLE support_tickets ( id INTEGER NOT NULL, user_id INTEGER NOT NULL, category VARCHAR(32) NOT NULL, message TEXT NOT NULL, status VARCHAR(16) NOT NULL, created_at DATETIME NOT NULL, PRIMARY KEY (id), FOREIGN KEY(user_id) REFERENCES users (id) )"
+  },
+  "users": {
+    "columns": [
+      [
+        "id",
+        "INTEGER",
+        1,
+        null,
+        1
+      ],
+      [
+        "telegram_id",
+        "BIGINT",
+        1,
+        null,
+        0
+      ],
+      [
+        "username",
+        "VARCHAR(64)",
+        0,
+        null,
+        0
+      ],
+      [
+        "created_at",
+        "DATETIME",
+        1,
+        null,
+        0
+      ]
+    ],
+    "foreign_keys": [],
+    "indexes": [
+      [
+        1,
+        "c",
+        0,
+        [
+          "telegram_id"
+        ]
+      ]
+    ],
+    "named_index_sql": [
+      "CREATE UNIQUE INDEX ix_users_telegram_id ON users (telegram_id)"
+    ],
+    "table_sql": "CREATE TABLE users ( id INTEGER NOT NULL, telegram_id BIGINT NOT NULL, username VARCHAR(64), created_at DATETIME NOT NULL, PRIMARY KEY (id) )"
+  }
+}

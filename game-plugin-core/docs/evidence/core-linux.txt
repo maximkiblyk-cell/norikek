@@ -1,0 +1,30 @@
+gcc (GCC) 11.5.0 20240719 (Red Hat 11.5.0-5)
+cmake version 3.31.6
+Python 3.13.16
+Internal ctest changing into directory: /data/nori-build-debug
+Test project /vercel/sandbox/data/nori-build-debug
+    Start 1: core
+1/1 Test #1: core .............................   Passed    0.01 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   0.01 sec
+Internal ctest changing into directory: /data/nori-build-release
+Test project /vercel/sandbox/data/nori-build-release
+    Start 1: core
+1/1 Test #1: core .............................   Passed    0.01 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   0.01 sec
+Internal ctest changing into directory: /data/nori-build-asan
+Test project /vercel/sandbox/data/nori-build-asan
+    Start 1: core
+1/1 Test #1: core .............................   Passed    0.04 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   0.04 sec
+TLS, real backend, absent v2 and cancellation passed
+TLS, real backend, absent v2 and cancellation passed
+PASS: X11 actual Insert close/open, navigation, settings click, process restart and F8 persistence

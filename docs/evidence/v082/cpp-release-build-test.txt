@@ -1,0 +1,23 @@
+[  3%] Building CXX object CMakeFiles/nori_core.dir/src/authentication/controller.cpp.o
+[  7%] Building CXX object CMakeFiles/nori_core.dir/src/core/core.cpp.o
+[ 11%] Linking CXX static library libnori_core.a
+[ 57%] Built target nori_core
+[ 61%] Linking CXX executable nori_http_tests
+[ 65%] Linking CXX executable nori_core_tests
+[ 69%] Linking CXX executable nori_dev_host
+[ 76%] Built target nori_dev_host
+[ 80%] Built target nori_core_tests
+[ 84%] Linking CXX executable nori_v2_flow_tests
+[ 88%] Built target nori_http_tests
+[ 92%] Linking CXX executable nori_controller_flow_tests
+[ 96%] Built target nori_v2_flow_tests
+[100%] Built target nori_controller_flow_tests
+Internal ctest changing into directory: /data/nori-v082-build-release
+Test project /vercel/sandbox/data/nori-v082-build-release
+    Start 1: core
+1/1 Test #1: core .............................   Passed    1.11 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   1.11 sec
+Controller + HTTPS + actual Backend: pairing, pre-confirm, restart, offline, bounded reconnect, expiry, renewal, cancellation, shutdown, revocation, corrupt vault passed. Test-only memory vault and direct test confirmation; not Windows or real Telegram.

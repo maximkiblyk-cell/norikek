@@ -1,0 +1,8 @@
+Internal ctest changing into directory: /data/nori-v081-build
+Test project /vercel/sandbox/data/nori-v081-build
+    Start 1: core
+1/1 Test #1: core .............................   Passed    1.11 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   1.11 sec

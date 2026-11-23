@@ -1,0 +1,1 @@
+C++ v2 / TLS / actual backend: pre-confirm, claim, access, outage, reconnect, expiration, renewal, revocation passed; test-only memory vault and test-driven confirmation

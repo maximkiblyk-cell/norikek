@@ -1,0 +1,2 @@
+#include "nori/core.hpp"
+namespace nori {namespace {class Hassle final:public Adapter{public:const char* name()const override{return "Hassle RP 2.0";}bool connected()const override{return false;}};class Radmir final:public Adapter{public:const char* name()const override{return "Radmir CRMP";}bool connected()const override{return false;}};}std::vector<std::unique_ptr<Adapter>> adapters(){std::vector<std::unique_ptr<Adapter>> r;r.push_back(std::make_unique<Hassle>());r.push_back(std::make_unique<Radmir>());return r;}}

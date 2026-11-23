@@ -1,0 +1,39 @@
+Сравнение с NORI-v0.8.2; исключены кэши и байткод. Файл данного списка включён в добавленные.
+
+MODIFIED  .github/workflows/windows-core.yml
+MODIFIED  README.md
+MODIFIED  app/db.py
+MODIFIED  docs/CHANGELOG.md
+MODIFIED  docs/REQUIREMENTS_MATRIX.md
+MODIFIED  game-plugin-core/CMakeLists.txt
+MODIFIED  game-plugin-core/README.md
+MODIFIED  game-plugin-core/host/renderer.cpp
+MODIFIED  game-plugin-core/host/windows_main.cpp
+MODIFIED  game-plugin-core/include/nori/core.hpp
+MODIFIED  game-plugin-core/src/authentication/controller.cpp
+MODIFIED  game-plugin-core/src/network/http.cpp
+MODIFIED  game-plugin-core/tests/controller_flow_tests.cpp
+MODIFIED  game-plugin-core/tests/run_controller_flow.py
+MODIFIED  game-plugin-core/tests/windows_vault_process.cpp
+
+ADDED     docs/V083_AUDIT.md
+ADDED     docs/V083_REPORT.md
+ADDED     docs/evidence/v083/backend-pytest.txt
+ADDED     docs/evidence/v083/bot-mocked-tests.txt
+ADDED     docs/evidence/v083/compose-config.txt
+ADDED     docs/evidence/v083/controller-integration.txt
+ADDED     docs/evidence/v083/debug-ctest.txt
+ADDED     docs/evidence/v083/docker-build-attempt.txt
+ADDED     docs/evidence/v083/file-diff.txt
+ADDED     docs/evidence/v083/postgres-recovery.txt
+ADDED     docs/evidence/v083/release-ctest.txt
+ADDED     docs/evidence/v083/static-ctest.txt
+ADDED     docs/evidence/v083/static-tls.txt
+ADDED     docs/evidence/v083/static-v2-flow.txt
+ADDED     docs/evidence/v083/tls-integration.txt
+ADDED     docs/evidence/v083/x11-smoke.txt
+ADDED     game-plugin-core/tests/backoff_tests.cpp
+ADDED     game-plugin-core/tests/windows_profile_isolation.ps1
+ADDED     tests/postgres_recovery_integration.py
+
+

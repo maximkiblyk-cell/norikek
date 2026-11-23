@@ -1,0 +1,16 @@
+#include "nori/core.hpp"
+#include <stdexcept>
+#include <algorithm>
+namespace nori {namespace {
+void success(const HttpResponse&r,long status){if(!r.error.empty())throw std::runtime_error(r.error);if(r.status!=status)throw std::runtime_error("server rejected request (HTTP "+std::to_string(r.status)+")");}
+std::string required(const json&j,const char*k,size_t max=256){if(!j.contains(k)||!j.at(k).is_string())throw std::runtime_error("invalid server response");auto v=j.at(k).get<std::string>();if(v.empty()||v.size()>max)throw std::runtime_error("invalid server response");return v;}
+}
+Pairing V2Api::start(const Settings&s,const std::string&platform,const std::string&name,const std::atomic_bool&cancel)const{if(platform!="hassle_rp_2"&&platform!="radmir_crmp")throw std::runtime_error("invalid platform");if(name.empty()||name.size()>80)throw std::runtime_error("invalid name");HttpRequest r;r.method="POST";r.ca_file=ca_file_;r.url=base_+"/v2/device/pairings";(void)s; r.body=json{{"platform",platform},{"name",name}}.dump();auto result=http_.perform(r,cancel);success(result,201);try{auto j=json::parse(result.body);return {required(j,"pairing_id"),required(j,"pairing_code"),required(j,"claim_secret"),required(j,"expires_at"),required(j,"device_id")};}catch(...){throw std::runtime_error("invalid pairing response");}}
+std::string V2Api::claim(Pairing&p,Vault&vault,const std::atomic_bool&cancel)const{if(p.id.empty()||p.claim_secret.empty())throw std::runtime_error("pairing unavailable");HttpRequest r;r.method="POST";r.ca_file=ca_file_;r.url=base_+"/v2/device/pairings/claim";r.body=json{{"pairing_id",p.id},{"claim_secret",p.claim_secret}}.dump();auto result=http_.perform(r,cancel);std::fill(r.body.begin(),r.body.end(),'\0');
+// A definite "not confirmed" response cannot have consumed the claim. All other
+// failures may have lost a one-time response; force user cancel/re-pair.
+if(result.status==409 && result.error.empty()) { try { if(json::parse(result.body).value("detail","")=="Pairing not confirmed") throw std::runtime_error("pairing not confirmed"); } catch(const json::exception&) {} }
+std::fill(p.claim_secret.begin(),p.claim_secret.end(),'\0');p.claim_secret.clear();success(result,200);try{auto j=json::parse(result.body);auto id=required(j,"device_id");auto token=required(j,"device_credential");if(id!=p.device_id)throw std::runtime_error("device mismatch");if(j.value("credential_type","")!="Bearer"||token.size()<32)throw std::runtime_error("invalid credential");vault.save(token);std::fill(token.begin(),token.end(),'\0');std::fill(result.body.begin(),result.body.end(),'\0');return id;}catch(...){std::fill(result.body.begin(),result.body.end(),'\0');throw std::runtime_error("claim or secure storage failed; revoke pairing and repeat");}}
+HttpResponse V2Api::access(const std::string& credential,const std::atomic_bool&cancel)const{HttpRequest r;r.url=base_+"/v2/device/access";r.ca_file=ca_file_;r.bearer=credential;return http_.perform(r,cancel);}
+HttpResponse LegacyV06::health(const std::atomic_bool&cancel)const{HttpRequest r;r.url=base_+"/health";return http_.perform(r,cancel);}HttpResponse LegacyV06::device_me(const std::string&credential,const std::atomic_bool&cancel)const{HttpRequest r;r.url=base_+"/v1/device/me";r.bearer=credential;return http_.perform(r,cancel);}
+}

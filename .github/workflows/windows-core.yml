@@ -1,0 +1,66 @@
+name: Windows Core (development tests)
+on:
+  workflow_dispatch:
+  push:
+    paths: ['game-plugin-core/**', '.github/workflows/windows-core.yml']
+  pull_request:
+    paths: ['game-plugin-core/**', '.github/workflows/windows-core.yml']
+permissions:
+  contents: read
+jobs:
+  core:
+    runs-on: windows-2022
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Visual Studio C++ toolchain
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+      - name: Verify or install CMake and check compiler
+        shell: pwsh
+        run: |
+          if (-not (Get-Command cmake -ErrorAction SilentlyContinue)) {
+            choco install cmake --no-progress -y
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            $env:PATH = "${env:ProgramFiles}\CMake\bin;$env:PATH"
+            "${env:ProgramFiles}\CMake\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          }
+          cmake --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ctest --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $compiler = Get-Command cl.exe -ErrorAction SilentlyContinue
+          if (-not $compiler) { throw 'MSVC compiler unavailable' }
+          Write-Output "MSVC compiler: $($compiler.Source)"
+      - name: Install libraries
+        shell: pwsh
+        run: |
+          if (-not $env:VCPKG_INSTALLATION_ROOT) { throw 'vcpkg installation root unavailable' }
+          & "$env:VCPKG_INSTALLATION_ROOT/vcpkg.exe" install 'curl[core,openssl]:x64-windows' 'openssl:x64-windows'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git -C "$env:VCPKG_INSTALLATION_ROOT" rev-parse HEAD
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Configure CMake
+        shell: pwsh
+        run: |
+          cmake -S game-plugin-core -B build-win -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows -DNORI_BUILD_HOST=ON
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build Debug and Release
+        shell: pwsh
+        run: |
+          cmake --build build-win --config Debug --parallel
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cmake --build build-win --config Release --parallel
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: CTest Debug and Release (includes DPAPI and plaintext checks)
+        shell: pwsh
+        run: |
+          ctest --test-dir build-win -C Debug --output-on-failure
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ctest --test-dir build-win -C Release --output-on-failure
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: DPAPI isolation with a separate temporary Windows profile
+        shell: pwsh
+        run: ./game-plugin-core/tests/windows_profile_isolation.ps1 -BinaryDir ./build-win/Release

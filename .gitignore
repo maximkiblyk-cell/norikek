@@ -1,0 +1,55 @@
+# Local configuration and credentials; retain example templates.
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.p8
+*.crt
+*.cer
+*.der
+*.dpapi
+**/credentials.json
+**/secrets.json
+# Local databases and SQLite journals.
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.sqlite*
+# Python, test and editor caches.
+.venv/
+venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.py[cod]
+coverage.xml
+htmlcov/
+.vs/
+.vscode/
+.idea/
+# Generated build files and diagnostics, not source or historical archives.
+build/
+build-*/
+out/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+CTestTestfile.cmake
+*.obj
+*.pdb
+*.ilk
+*.exe
+*.dll
+*.so
+*.dylib
+*.o
+*.a
+*.lib
+*.log
+*.tmp

@@ -1,0 +1,1 @@
+Controller + HTTPS + actual Backend: pairing, pre-confirm, restart, offline, long outage (>3 automatic retry cycles), reconnect, cancellation during retry wait, expiry, renewal, in-flight cancellation, shutdown, revocation, corrupt vault passed. Test-only memory vault and direct test confirmation; not Windows or real Telegram.

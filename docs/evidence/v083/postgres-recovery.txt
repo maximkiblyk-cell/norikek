@@ -1,0 +1,1 @@
+PASS PostgreSQL temporary cluster: ready=200, stopped=503, recovered=200, first request after silent restart=200 (pool pre-ping)

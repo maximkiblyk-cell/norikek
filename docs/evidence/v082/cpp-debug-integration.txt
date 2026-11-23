@@ -1,0 +1,10 @@
+Internal ctest changing into directory: /data/nori-v082-build-debug
+Test project /data/nori-v082-build-debug
+    Start 1: core
+1/1 Test #1: core .............................   Passed    1.11 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   1.11 sec
+Controller + HTTPS + actual Backend: pairing, pre-confirm, restart, offline, bounded reconnect, expiry, renewal, cancellation, shutdown, revocation, corrupt vault passed. Test-only memory vault and direct test confirmation; not Windows or real Telegram.
+C++ v2 / TLS / actual backend: pre-confirm, claim, access, outage, reconnect, expiration, renewal, revocation passed; test-only memory vault and test-driven confirmation
