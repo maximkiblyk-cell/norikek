@@ -14,6 +14,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Set up Python for integration tests
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Python test dependencies
+        shell: pwsh
+        run: |
+          python -m pip install -r requirements-dev.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Set up Visual Studio C++ toolchain
         uses: ilammy/msvc-dev-cmd@v1
         with:
@@ -34,6 +43,33 @@ jobs:
           $compiler = Get-Command cl.exe -ErrorAction SilentlyContinue
           if (-not $compiler) { throw 'MSVC compiler unavailable' }
           Write-Output "MSVC compiler: $($compiler.Source)"
+      - name: Locate OpenSSL CLI for local TLS test certificates
+        shell: pwsh
+        run: |
+          if (-not (Get-Command openssl -ErrorAction SilentlyContinue)) {
+            $candidates = @("${env:ProgramFiles}\OpenSSL\bin", "${env:ProgramFiles}\Git\usr\bin")
+            $found = $candidates | Where-Object { Test-Path (Join-Path $_ 'openssl.exe') } | Select-Object -First 1
+            if (-not $found) { throw 'OpenSSL command line executable not found' }
+            $env:PATH = "$found;$env:PATH"
+            $found | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          }
+          openssl version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Identify vcpkg revision
+        id: vcpkg
+        shell: pwsh
+        run: |
+          if (-not $env:VCPKG_INSTALLATION_ROOT) { throw 'vcpkg installation root unavailable' }
+          $revision = git -C "$env:VCPKG_INSTALLATION_ROOT" rev-parse HEAD
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          "revision=$revision" >> $env:GITHUB_OUTPUT
+          "root=$env:VCPKG_INSTALLATION_ROOT" >> $env:GITHUB_OUTPUT
+      - name: Restore vcpkg packages
+        id: cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ steps.vcpkg.outputs.root }}/installed
+          key: nori-vcpkg-${{ runner.os }}-x64-${{ steps.vcpkg.outputs.revision }}-curl-openssl-v1
       - name: Install libraries
         shell: pwsh
         run: |
@@ -42,25 +78,56 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           git -C "$env:VCPKG_INSTALLATION_ROOT" rev-parse HEAD
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Save vcpkg packages
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ steps.vcpkg.outputs.root }}/installed
+          key: nori-vcpkg-${{ runner.os }}-x64-${{ steps.vcpkg.outputs.revision }}-curl-openssl-v1
+      - name: Prepare log directory
+        shell: pwsh
+        run: New-Item -ItemType Directory -Force logs | Out-Null
       - name: Configure CMake
         shell: pwsh
         run: |
-          cmake -S game-plugin-core -B build-win -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows -DNORI_BUILD_HOST=ON
+          cmake -S game-plugin-core -B build-win -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" -DVCPKG_TARGET_TRIPLET=x64-windows -DNORI_BUILD_HOST=ON 2>&1 | Tee-Object -FilePath logs/configure.log
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Build Debug and Release
+        id: build
         shell: pwsh
         run: |
-          cmake --build build-win --config Debug --parallel
+          cmake --build build-win --config Debug --parallel 2>&1 | Tee-Object -FilePath logs/build-debug.log
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          cmake --build build-win --config Release --parallel
+          cmake --build build-win --config Release --parallel 2>&1 | Tee-Object -FilePath logs/build-release.log
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: CTest Debug and Release (includes DPAPI and plaintext checks)
+      - name: Verify registered tests and run CTest Debug
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         shell: pwsh
         run: |
-          ctest --test-dir build-win -C Debug --output-on-failure
+          $listing = ctest --test-dir build-win -C Debug --show-only=json-v1 | ConvertFrom-Json
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          ctest --test-dir build-win -C Release --output-on-failure
+          $expected = @('core','http','v2_flow','controller_flow','backoff','vault_write','vault_read','vault_corrupt')
+          $names = @($listing.tests | ForEach-Object { $_.name })
+          if ($names.Count -ne $expected.Count -or @($expected | Where-Object { $_ -notin $names }).Count -ne 0) { throw "Unexpected tests: $names" }
+          ctest --test-dir build-win -C Debug -V --no-tests=error --output-log "$env:GITHUB_WORKSPACE/logs/ctest-debug.log"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Run CTest Release
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        shell: pwsh
+        run: |
+          ctest --test-dir build-win -C Release -V --no-tests=error --output-log "$env:GITHUB_WORKSPACE/logs/ctest-release.log"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: DPAPI isolation with a separate temporary Windows profile
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         shell: pwsh
         run: ./game-plugin-core/tests/windows_profile_isolation.ps1 -BinaryDir ./build-win/Release
+      - name: Preserve build and test logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-core-logs
+          path: |
+            logs/
+            build-win/Testing/Temporary/
+          if-no-files-found: warn
+          retention-days: 14

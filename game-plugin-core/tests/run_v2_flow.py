@@ -1,6 +1,7 @@
 """Isolated HTTPS gateway, actual v2 API and C++ client; Telegram confirmation is test-driven."""
 import http.server,json,os,pathlib,socket,ssl,subprocess,sys,tempfile,threading,time,urllib.error,urllib.request
 from datetime import datetime,timedelta,timezone
+from contextlib import closing
 
 def port():
     with socket.socket() as s:s.bind(('127.0.0.1',0));return s.getsockname()[1]
@@ -10,12 +11,13 @@ def call(url,method='GET',data=None,token=None):
     with urllib.request.urlopen(urllib.request.Request(url,data=body,headers=headers,method=method),timeout=4) as r:return json.load(r)
 with tempfile.TemporaryDirectory(prefix='nori-v081-flow-') as d:
     root=pathlib.Path(__file__).resolve().parents[2]; backend=port();tls=port();db=pathlib.Path(d)/'db.sqlite';cert=pathlib.Path(d)/'cert.pem';key=pathlib.Path(d)/'key.pem'
-    subprocess.run(['openssl','req','-x509','-newkey','rsa:2048','-nodes','-days','1','-subj','/CN=localhost','-addext','subjectAltName=DNS:localhost','-keyout',str(key),'-out',str(cert)],check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
-    env={**os.environ,'DATABASE_URL':'sqlite:///'+str(db),'AUTO_CREATE_SCHEMA':'false','BOT_TOKEN':''}
+    subprocess.run([os.environ.get('NORI_TEST_OPENSSL','openssl'),'req','-x509','-newkey','rsa:2048','-nodes','-days','1','-subj','/CN=localhost','-addext','subjectAltName=DNS:localhost','-keyout',str(key),'-out',str(cert)],check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+    env={**os.environ,'DATABASE_URL':'sqlite:///'+db.as_posix(),'AUTO_CREATE_SCHEMA':'false','BOT_TOKEN':''}
     subprocess.run([sys.executable,'-m','alembic','upgrade','head'],cwd=root,env=env,check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
     seed='''
 from uuid import uuid4
 from datetime import datetime,timedelta,timezone
+from contextlib import closing
 from app.auth import mint_telegram_session
 from app.db import SessionLocal
 from app.models import User,SubscriptionPlan,LicenseGrant,LicenseEntitlement
@@ -63,11 +65,11 @@ with SessionLocal() as db:
             if line!=expected:raise RuntimeError('C++ flow failed at '+expected+': '+line+' '+(client.stderr.read() if client.poll() is not None else ''))
         step('ONLINE');down.set();step('OFFLINE');down.clear();step('RECONNECTED')
         import sqlite3
-        with sqlite3.connect(db) as c:c.execute('update license_grants set expires_at=? where id=?',((datetime.now(timezone.utc)-timedelta(days=1)).isoformat(),seeded['grant']))
+        with closing(sqlite3.connect(db)) as c, c:c.execute('update license_grants set expires_at=? where id=?',((datetime.now(timezone.utc)-timedelta(days=1)).isoformat(),seeded['grant']))
         step('DENIED')
-        with sqlite3.connect(db) as c:c.execute('update license_grants set expires_at=? where id=?',((datetime.now(timezone.utc)+timedelta(days=1)).isoformat(),seeded['grant']))
+        with closing(sqlite3.connect(db)) as c, c:c.execute('update license_grants set expires_at=? where id=?',((datetime.now(timezone.utc)+timedelta(days=1)).isoformat(),seeded['grant']))
         step('RENEWED')
-        with sqlite3.connect(db) as c:device=c.execute('select id from devices').fetchone()[0]
+        with closing(sqlite3.connect(db)) as c:device=c.execute('select id from devices').fetchone()[0]
         call(base+'/v2/devices/'+device+'/revoke','POST',{},u);step('REVOKED');assert client.wait(timeout=5)==0
         print('C++ v2 / TLS / actual backend: pre-confirm, claim, access, outage, reconnect, expiration, renewal, revocation passed; test-only memory vault and test-driven confirmation')
     finally:

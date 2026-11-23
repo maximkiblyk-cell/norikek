@@ -1,6 +1,7 @@
 """Isolated HTTPS gateway, actual v2 API and C++ client; Telegram confirmation is test-driven."""
 import http.server,json,os,pathlib,socket,ssl,subprocess,sys,tempfile,threading,time,urllib.error,urllib.request
 from datetime import datetime,timedelta,timezone
+from contextlib import closing
 
 def port():
     with socket.socket() as s:s.bind(('127.0.0.1',0));return s.getsockname()[1]
@@ -10,12 +11,13 @@ def call(url,method='GET',data=None,token=None):
     with urllib.request.urlopen(urllib.request.Request(url,data=body,headers=headers,method=method),timeout=4) as r:return json.load(r)
 with tempfile.TemporaryDirectory(prefix='nori-v081-flow-') as d:
     root=pathlib.Path(__file__).resolve().parents[2]; backend=port();tls=port();db=pathlib.Path(d)/'db.sqlite';cert=pathlib.Path(d)/'cert.pem';key=pathlib.Path(d)/'key.pem'
-    subprocess.run(['openssl','req','-x509','-newkey','rsa:2048','-nodes','-days','1','-subj','/CN=localhost','-addext','subjectAltName=DNS:localhost','-keyout',str(key),'-out',str(cert)],check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
-    env={**os.environ,'DATABASE_URL':'sqlite:///'+str(db),'AUTO_CREATE_SCHEMA':'false','BOT_TOKEN':''}
+    subprocess.run([os.environ.get('NORI_TEST_OPENSSL','openssl'),'req','-x509','-newkey','rsa:2048','-nodes','-days','1','-subj','/CN=localhost','-addext','subjectAltName=DNS:localhost','-keyout',str(key),'-out',str(cert)],check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+    env={**os.environ,'DATABASE_URL':'sqlite:///'+db.as_posix(),'AUTO_CREATE_SCHEMA':'false','BOT_TOKEN':''}
     subprocess.run([sys.executable,'-m','alembic','upgrade','head'],cwd=root,env=env,check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
     seed='''
 from uuid import uuid4
 from datetime import datetime,timedelta,timezone
+from contextlib import closing
 from app.auth import mint_telegram_session
 from app.db import SessionLocal
 from app.models import User,SubscriptionPlan,LicenseGrant,LicenseEntitlement
@@ -60,8 +62,25 @@ with SessionLocal() as db:
         else:raise RuntimeError('API not ready')
         server=Server(('127.0.0.1',tls),H);ctx=ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER);ctx.load_cert_chain(cert,key);server.socket=ctx.wrap_socket(server.socket,server_side=True);threading.Thread(target=server.serve_forever,daemon=True).start()
         client=subprocess.Popen([sys.argv[1],f'https://localhost:{tls}',str(cert)],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,bufsize=1)
-        line=client.stdout.readline().strip();assert line.startswith('CODE '),line
-        code=line[5:];base=f'http://127.0.0.1:{backend}';u=seeded['session'];p=call(base+'/v2/pairings/preview','POST',{'pairing_code':code},u);call(base+'/v2/pairings/confirm','POST',{'pairing_id':p['pairing_id'],'pairing_code':code,'license_id':seeded['grant']},u)
+        import sqlite3
+        base=f'http://127.0.0.1:{backend}';u=seeded['session']
+        def read_code(prefix):
+            line=client.stdout.readline().strip()
+            if not line.startswith(prefix+' '):raise RuntimeError('C++ flow failed waiting for '+prefix+': '+line+' '+(client.stderr.read() if client.poll() is not None else ''))
+            return line[len(prefix)+1:]
+        def confirm(code):
+            p=call(base+'/v2/pairings/preview','POST',{'pairing_code':code},u)
+            call(base+'/v2/pairings/confirm','POST',{'pairing_id':p['pairing_id'],'pairing_code':code,'license_id':seeded['grant']},u)
+        expired=read_code('EXPIRE_CODE')
+        pair=call(base+'/v2/pairings/preview','POST',{'pairing_code':expired},u)
+        with closing(sqlite3.connect(db)) as c, c:c.execute('update v2_pairings set expires_at=? where id=?',((datetime.now(timezone.utc)-timedelta(days=1)).isoformat(),pair['pairing_id']))
+        try:
+            call(base+'/v2/pairings/preview','POST',{'pairing_code':expired},u)
+            raise AssertionError('expired pairing unexpectedly accepted')
+        except urllib.error.HTTPError as e:
+            assert e.code==410, f'expected pairing expiry 410, got {e.code}'
+        client.stdin.write('next\n');client.stdin.flush()
+        code=read_code('CODE');confirm(code)
         def step(expected):
             client.stdin.write('next\n');client.stdin.flush();line=client.stdout.readline().strip()
             if line!=expected:raise RuntimeError('C++ flow failed at '+expected+': '+line+' '+(client.stderr.read() if client.poll() is not None else ''))
@@ -75,15 +94,15 @@ with SessionLocal() as db:
             time.sleep(.05)
         else:raise RuntimeError(f'long outage retry stopped early: {count} HTTP requests')
         down.clear();step('RECONNECTED');down.set();step('PAUSED');down.clear();step('AFTER_PAUSE')
-        import sqlite3
-        with sqlite3.connect(db) as c:c.execute('update license_grants set expires_at=? where id=?',((datetime.now(timezone.utc)-timedelta(days=1)).isoformat(),seeded['grant']))
+        with closing(sqlite3.connect(db)) as c, c:c.execute('update license_grants set expires_at=? where id=?',((datetime.now(timezone.utc)-timedelta(days=1)).isoformat(),seeded['grant']))
         step('DENIED')
-        with sqlite3.connect(db) as c:c.execute('update license_grants set expires_at=? where id=?',((datetime.now(timezone.utc)+timedelta(days=1)).isoformat(),seeded['grant']))
+        with closing(sqlite3.connect(db)) as c, c:c.execute('update license_grants set expires_at=? where id=?',((datetime.now(timezone.utc)+timedelta(days=1)).isoformat(),seeded['grant']))
         step('RENEWED');slow.set();step('CANCELLED');step('SHUTDOWN');slow.clear();step('RESUMED')
-        with sqlite3.connect(db) as c:device=c.execute('select id from devices').fetchone()[0]
+        with closing(sqlite3.connect(db)) as c:device=c.execute('select id from devices').fetchone()[0]
         call(base+'/v2/devices/'+device+'/revoke','POST',{},u);step('REVOKED')
+        client.stdin.write('next\n');client.stdin.flush();code=read_code('REPAIR_CODE');confirm(code);step('REPAIRED')
         assert client.stdout.readline().strip()=='CORRUPT';assert client.wait(timeout=5)==0
-        print('Controller + HTTPS + actual Backend: pairing, pre-confirm, restart, offline, long outage (>3 automatic retry cycles), reconnect, cancellation during retry wait, expiry, renewal, in-flight cancellation, shutdown, revocation, corrupt vault passed. Test-only memory vault and direct test confirmation; not Windows or real Telegram.')
+        print('Controller + HTTPS + actual Backend: expired pairing, re-pair after revoke, pre-confirm, restart, offline, long outage (>3 automatic retry cycles), reconnect, cancellation during retry wait, expiry, renewal, in-flight cancellation, shutdown, revocation, corrupt vault passed. Test-only memory vault and direct test confirmation; not Windows or real Telegram.')
     finally:
         if client and client.poll() is None:client.kill();client.wait()
         if server:server.shutdown();server.server_close()
