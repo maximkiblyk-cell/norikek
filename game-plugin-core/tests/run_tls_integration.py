@@ -8,9 +8,11 @@ def freeport():
 with tempfile.TemporaryDirectory(prefix='nori-tls-test-') as d:
     root=pathlib.Path(__file__).resolve().parents[2];backend=freeport();port=freeport()
     cert=pathlib.Path(d)/'cert.pem';key=pathlib.Path(d)/'key.pem'
-    subprocess.run([os.environ.get('NORI_TEST_OPENSSL','openssl'),'req','-x509','-newkey','rsa:2048','-nodes','-days','1','-subj','/CN=localhost','-addext','subjectAltName=DNS:localhost','-keyout',str(key),'-out',str(cert)],check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+    cert_result=subprocess.run([os.environ.get('NORI_TEST_OPENSSL','openssl'),'req','-x509','-newkey','rsa:2048','-nodes','-days','1','-subj','/CN=localhost','-addext','subjectAltName=DNS:localhost','-keyout',str(key),'-out',str(cert)],stdout=subprocess.DEVNULL,stderr=subprocess.PIPE,text=True)
+    if cert_result.returncode:raise RuntimeError('OpenSSL certificate generation failed: '+cert_result.stderr)
     env=os.environ.copy();env['DATABASE_URL']='sqlite:///'+(pathlib.Path(d)/'test.db').as_posix();env['AUTO_CREATE_SCHEMA']='true';env['BOT_TOKEN']='';env.pop('SERVICE_TOKEN',None)
-    proc=subprocess.Popen([sys.executable,'-m','uvicorn','app.main:app','--host','127.0.0.1','--port',str(backend),'--log-level','error'],cwd=root,env=env,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+    backend_log=tempfile.TemporaryFile(mode='w+t',encoding='utf-8')
+    proc=subprocess.Popen([sys.executable,'-m','uvicorn','app.main:app','--host','127.0.0.1','--port',str(backend),'--log-level','error'],cwd=root,env=env,stdout=backend_log,stderr=backend_log)
     class Handler(http.server.BaseHTTPRequestHandler):
         def log_message(self,*args):pass
         def do_GET(self):
@@ -43,3 +45,6 @@ with tempfile.TemporaryDirectory(prefix='nori-tls-test-') as d:
         proc.terminate()
         try:proc.wait(timeout=5)
         except subprocess.TimeoutExpired:proc.kill();proc.wait()
+        if sys.exc_info()[0]:
+            backend_log.seek(0);print("Backend test log:\n"+backend_log.read(),file=sys.stderr)
+        backend_log.close()

@@ -11,9 +11,10 @@ def call(url,method='GET',data=None,token=None):
     with urllib.request.urlopen(urllib.request.Request(url,data=body,headers=headers,method=method),timeout=4) as r:return json.load(r)
 with tempfile.TemporaryDirectory(prefix='nori-v081-flow-') as d:
     root=pathlib.Path(__file__).resolve().parents[2]; backend=port();tls=port();db=pathlib.Path(d)/'db.sqlite';cert=pathlib.Path(d)/'cert.pem';key=pathlib.Path(d)/'key.pem'
-    subprocess.run([os.environ.get('NORI_TEST_OPENSSL','openssl'),'req','-x509','-newkey','rsa:2048','-nodes','-days','1','-subj','/CN=localhost','-addext','subjectAltName=DNS:localhost','-keyout',str(key),'-out',str(cert)],check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+    cert_result=subprocess.run([os.environ.get('NORI_TEST_OPENSSL','openssl'),'req','-x509','-newkey','rsa:2048','-nodes','-days','1','-subj','/CN=localhost','-addext','subjectAltName=DNS:localhost','-keyout',str(key),'-out',str(cert)],stdout=subprocess.DEVNULL,stderr=subprocess.PIPE,text=True)
+    if cert_result.returncode:raise RuntimeError('OpenSSL certificate generation failed: '+cert_result.stderr)
     env={**os.environ,'DATABASE_URL':'sqlite:///'+db.as_posix(),'AUTO_CREATE_SCHEMA':'false','BOT_TOKEN':''}
-    subprocess.run([sys.executable,'-m','alembic','upgrade','head'],cwd=root,env=env,check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+    subprocess.run([sys.executable,'-m','alembic','upgrade','head'],cwd=root,env=env,check=True)
     seed='''
 from uuid import uuid4
 from datetime import datetime,timedelta,timezone
@@ -27,8 +28,11 @@ with SessionLocal() as db:
  u=db.query(User).filter_by(telegram_id=1001).one();p=SubscriptionPlan(id=str(uuid4()),request_id=str(uuid4()),created_by=1,name='p',price_minor=1,currency='EUR',duration_days=30,device_limit=1,platform='hassle',enabled=True);db.add(p)
  g=LicenseGrant(user_id=u.id,key_hash='a'*64,issue_request_id=str(uuid4()),duration_days=30,activated_at=datetime.now(timezone.utc)-timedelta(days=1),expires_at=datetime.now(timezone.utc)+timedelta(days=30));db.add(g);db.flush();db.add(LicenseEntitlement(grant_id=g.id,plan_id=p.id,platform='hassle',device_limit=1));db.commit();print(json.dumps({'session':session,'grant':g.id}))
 '''
-    seeded=json.loads(subprocess.run([sys.executable,'-c',seed],cwd=root,env=env,check=True,capture_output=True,text=True).stdout)
-    api=subprocess.Popen([sys.executable,'-m','uvicorn','app.main:app','--host','127.0.0.1','--port',str(backend),'--no-access-log','--log-level','error'],cwd=root,env=env,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+    seed_result=subprocess.run([sys.executable,'-c',seed],cwd=root,env=env,capture_output=True,text=True)
+    if seed_result.returncode:raise RuntimeError('Test data setup failed: '+seed_result.stderr)
+    seeded=json.loads(seed_result.stdout)
+    backend_log=tempfile.TemporaryFile(mode='w+t',encoding='utf-8')
+    api=subprocess.Popen([sys.executable,'-m','uvicorn','app.main:app','--host','127.0.0.1','--port',str(backend),'--no-access-log','--log-level','error'],cwd=root,env=env,stdout=backend_log,stderr=backend_log)
     down=threading.Event()
     class H(http.server.BaseHTTPRequestHandler):
         def log_message(self,*a):pass
@@ -78,3 +82,6 @@ with SessionLocal() as db:
         api.terminate()
         try:api.wait(timeout=5)
         except subprocess.TimeoutExpired:api.kill();api.wait()
+        if sys.exc_info()[0]:
+            backend_log.seek(0);print("Backend test log:\n"+backend_log.read(),file=sys.stderr)
+        backend_log.close()

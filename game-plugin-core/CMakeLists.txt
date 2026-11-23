@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(nori_game_core VERSION 0.8.3 LANGUAGES CXX)
+project(nori_game_core VERSION 0.8.3.1 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
